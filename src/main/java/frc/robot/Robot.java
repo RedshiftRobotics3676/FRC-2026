@@ -2,14 +2,14 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.constants.BuildConstants;
+import frc.robot.constants.StateConstants;
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
 import org.littletonrobotics.junction.networktables.NT4Publisher;
 import org.littletonrobotics.junction.wpilog.WPILOGReader;
 import org.littletonrobotics.junction.wpilog.WPILOGWriter;
-
-import frc.robot.constants.StateConstants;
 
 public class Robot extends LoggedRobot {
   private Command autonomousCommand;
@@ -23,15 +23,14 @@ public class Robot extends LoggedRobot {
     Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
     Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
     Logger.recordMetadata(
-      "GitDirty",
-      switch (BuildConstants.DIRTY) {
-        case 0 -> "All changes committed";
-        case 1 -> "Uncommitted changes";
-        default -> "Unknown";
-      }
-    );
-    
-      // Set up data receivers & replay source
+        "GitDirty",
+        switch (BuildConstants.DIRTY) {
+          case 0 -> "All changes committed";
+          case 1 -> "Uncommitted changes";
+          default -> "Unknown";
+        });
+
+    // Set up data receivers & replay source
     switch (StateConstants.currentMode) {
       case REAL -> {
         // Running on a real robot, log to a USB stick ("/U/logs")
@@ -52,7 +51,7 @@ public class Robot extends LoggedRobot {
         Logger.addDataReceiver(new WPILOGWriter(LogFileUtil.addPathSuffix(logPath, "_sim")));
       }
     }
-    
+
     Logger.start(); // AdvantageKit
 
     robotContainer = new RobotContainer();

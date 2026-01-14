@@ -9,7 +9,7 @@ import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
 import frc.robot.constants.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -32,7 +32,7 @@ public class RobotContainer {
 
   private final Telemetry logger = new Telemetry(MaxSpeed);
 
-  private final CommandXboxController joystick = new CommandXboxController(0);
+  private final CommandPS5Controller joystick = new CommandPS5Controller(0);
 
   public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
 
@@ -66,9 +66,9 @@ public class RobotContainer {
                             * MaxAngularRate) // Drive counterclockwise with negative X (left)
             ));
 
-    joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
+    joystick.cross().whileTrue(drivetrain.applyRequest(() -> brake));
     joystick
-        .b()
+        .circle()
         .whileTrue(
             drivetrain.applyRequest(
                 () ->
@@ -84,14 +84,23 @@ public class RobotContainer {
         .whileTrue(
             drivetrain.applyRequest(() -> forwardStraight.withVelocityX(-0.5).withVelocityY(0)));
 
-    // Run SysId routines when holding back/start and X/Y.
-    joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-    joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-    joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-    joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+    // Run SysId routines when holding create/share and triangle/square.
+    joystick
+        .create()
+        .and(joystick.triangle())
+        .whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
+    joystick.create().and(joystick.square()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
+    joystick
+        .options()
+        .and(joystick.triangle())
+        .whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
+    joystick
+        .options()
+        .and(joystick.square())
+        .whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
 
-    // Reset the field-centric heading on left bumper press
-    joystick.leftBumper().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
+    // Reset the field-centric heading on L2 press
+    joystick.L2().onTrue(drivetrain.runOnce(() -> drivetrain.seedFieldCentric()));
 
     drivetrain.registerTelemetry(logger::telemeterize);
   }
