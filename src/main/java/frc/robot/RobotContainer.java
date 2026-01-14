@@ -11,6 +11,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandPS5Controller;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import org.ironmaple.simulation.SimulatedArena;
+import org.ironmaple.simulation.drivesims.SwerveDriveSimulation;
+import org.ironmaple.simulation.seasonspecific.reefscape2025.ReefscapeCoralOnFly;
+import org.littletonrobotics.junction.Logger;
+import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
+
+import frc.robot.constants.StateConstants;
 import frc.robot.constants.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 
@@ -107,5 +114,23 @@ public class RobotContainer {
 
   public Command getAutonomousCommand() {
     return autoChooser.selectedCommand();
+  }
+
+  public void resetSimulationField() {
+      if (StateConstants.currentMode != StateConstants.Mode.SIM) return;
+
+      driveSimulation.setSimulationWorldPose(new Pose2d(3, 3, new Rotation2d()));
+      SimulatedArena.getInstance().resetFieldForAuto();
+  }
+
+  public void updateSimulation() {
+      if (StateConstants.currentMode != StateConstants.Mode.SIM) return;
+
+      SimulatedArena.getInstance().simulationPeriodic();
+      Logger.recordOutput("FieldSimulation/RobotPosition", driveSimulation.getSimulatedDriveTrainPose());
+      Logger.recordOutput(
+              "FieldSimulation/Coral", SimulatedArena.getInstance().getGamePiecesArrayByType("Coral"));
+      Logger.recordOutput(
+              "FieldSimulation/Algae", SimulatedArena.getInstance().getGamePiecesArrayByType("Algae"));
   }
 }

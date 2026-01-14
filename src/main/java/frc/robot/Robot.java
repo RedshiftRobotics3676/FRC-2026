@@ -1,5 +1,6 @@
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Threads;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.constants.BuildConstants;
@@ -59,11 +60,16 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void robotPeriodic() {
+    // Increase and decrease thread priority to improve loop timing
+    Threads.setCurrentThreadPriority(true, 99);
     CommandScheduler.getInstance().run();
+    Threads.setCurrentThreadPriority(false, 10);
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    robotContainer.resetSimulationField();
+  }
 
   @Override
   public void disabledPeriodic() {}
@@ -109,4 +115,12 @@ public class Robot extends LoggedRobot {
 
   @Override
   public void testExit() {}
+
+  @Override
+  public void simulationInit() {}
+
+  @Override
+  public void simulationPeriodic() {
+      robotContainer.updateSimulation();
+  }
 }
